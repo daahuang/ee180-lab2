@@ -10,7 +10,6 @@ using namespace cv;
 ********************************************/
 void grayScale(Mat& img, Mat& img_gray_out)
 {
-
   // Convert to grayscale
 
   // give loop size locally
@@ -21,9 +20,13 @@ void grayScale(Mat& img, Mat& img_gray_out)
   uchar* img_ptr = img.data;
   uchar* img_gray_out_ptr = img_gray_out.data;
 
+
   //double color;
   for (int i=0; i<rows; i++) {
+    //int row_offset = STEP0 * i;
+    //int out_row_offset = IMG_WIDTH*i;
     for (int j=0; j<cols; j++) {
+      //int rgb_offset = row_offset + STEP1*j;
       img_gray_out_ptr[IMG_WIDTH*i + j] = 
               (114*img_ptr[STEP0*i + STEP1*j] +
               587*img_ptr[STEP0*i + STEP1*j + 1] +
@@ -57,8 +60,8 @@ void grayScale(Mat& img, Mat& img_gray_out)
 
 void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
 {
-  Mat img_outx = img_gray.clone();
-  Mat img_outy = img_gray.clone();
+  //Mat img_outx = img_gray.clone();
+  //Mat img_outy = img_gray.clone();
 
   // Apply Sobel filter to black & white image
   unsigned short sobel;
@@ -68,8 +71,12 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
   const int cols = img_gray.cols;
 
   uchar* img_ptr = img_gray.data;
-  uchar* outx_ptr = img_outx.data;
-  uchar* outy_ptr = img_outy.data;
+  //uchar* outx_ptr = img_outx.data;
+  //uchar* outy_ptr = img_outy.data;
+  uchar outx_ptr[rows*cols];
+  uchar outy_ptr[rows*cols];
+
+
   uchar* out_ptr = img_sobel_out.data;
 
   // Calculate the x convolution
@@ -113,4 +120,6 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
     }
   }
 }
+
+
 
