@@ -68,10 +68,11 @@ void *runSobelMT(void *ptr)
       sobelCalc(img_gray, img_sobel, 1);
       cout << "th 1 ending sobel" << endl;
       pthread_barrier_wait(&endSobelCalc);
-      char c = cvWaitKey(10);
+      //char c = cvWaitKey(10);
       cout << "th 1 frame # " << i << endl;
       i++;
-      if (c == 'q' || i >= opts.numFrames) {
+      //if (c == 'q' || i >= opts.numFrames) {
+      if ( i >= opts.numFrames) {
         break;
       }
     }
