@@ -22,6 +22,7 @@ static ofstream results_file;
 
 // Define image mats to pass between function calls
 static Mat img_gray, img_sobel;
+static Mat src;
 static float total_fps, total_ipc, total_epf;
 static float gray_total, sobel_total, cap_total, disp_total;
 static float sobel_ic_total, sobel_l1cm_total;
@@ -38,7 +39,7 @@ void *runSobelMT(void *ptr)
 {
   // Set up variables for computing Sobel
   string top = "Sobel Top";
-  Mat src;
+  //Mat src;
   uint64_t cap_time, gray_time, sobel_time, disp_time, sobel_l1cm, sobel_ic;
   pthread_t myID = pthread_self();
   counters_t perf_counters;
@@ -51,6 +52,7 @@ void *runSobelMT(void *ptr)
     thread0_id = myID;
   }
   pthread_mutex_unlock(&thread0);
+
 
   // For now, we just kill the second thread. It's up to you to get it to compute
   // the other half of the image.
@@ -114,6 +116,7 @@ void *runSobelMT(void *ptr)
     pc_start(&perf_counters);
     cout << "th 0 starting gray" << endl;
     grayScale(src, img_gray, 0);
+    //grayScale(src, img_gray);
     cout << "th 0 endin gray" << endl;
     pc_stop(&perf_counters);
 
@@ -138,6 +141,7 @@ void *runSobelMT(void *ptr)
 
     pc_start(&perf_counters);
     namedWindow(top, CV_WINDOW_AUTOSIZE);
+    //imshow(top, img_gray);
     imshow(top, img_sobel);
     pc_stop(&perf_counters);
 
