@@ -55,6 +55,24 @@ void *runSobelMT(void *ptr)
   // For now, we just kill the second thread. It's up to you to get it to compute
   // the other half of the image.
   if (myID != thread0_id) {
+    int i = 0;
+    while (1) {
+      pthread_barrier_wait(&endImgLoad);
+      cout << "th 1 starting gray" << endl;
+      grayScale(src, img_gray, 1);
+      cout << "th 1 endin gray" << endl;
+      pthread_barrier_wait(&endGray);
+      cout << "th 1 starting sobel" << endl;
+      sobelCalc(img_gray, img_sobel, 1);
+      cout << "th 1 ending sobel" << endl;
+      pthread_barrier_wait(&endSobelCalc);
+      char c = cvWaitKey(10);
+      cout << "th 1 frame # " << i << endl;
+      i++;
+      if (c == 'q' || i >= opts.numFrames) {
+        break;
+      }
+    }
     pthread_barrier_wait(&endSobel);
     return NULL;
   }
@@ -90,18 +108,28 @@ void *runSobelMT(void *ptr)
     sobel_l1cm = perf_counters.l1_misses.count;
     sobel_ic = perf_counters.ic.count;
 
+    pthread_barrier_wait(&endImgLoad);
+
     // LAB 2, PART 2: Start parallel section
     pc_start(&perf_counters);
-    grayScale(src, img_gray);
+    cout << "th 0 starting gray" << endl;
+    grayScale(src, img_gray, 0);
+    cout << "th 0 endin gray" << endl;
     pc_stop(&perf_counters);
+
+    pthread_barrier_wait(&endGray);
 
     gray_time = perf_counters.cycles.count;
     sobel_l1cm += perf_counters.l1_misses.count;
     sobel_ic += perf_counters.ic.count;
 
     pc_start(&perf_counters);
-    sobelCalc(img_gray, img_sobel);
+    cout << "th 0 starting sobel" << endl;
+    sobelCalc(img_gray, img_sobel, 0);
+    cout << "th 0 ending sobel" << endl;
     pc_stop(&perf_counters);
+
+    pthread_barrier_wait(&endSobelCalc);
 
     sobel_time = perf_counters.cycles.count;
     sobel_l1cm += perf_counters.l1_misses.count;
@@ -125,6 +153,7 @@ void *runSobelMT(void *ptr)
     disp_total += disp_time;
     total_fps += PROC_FREQ/float(cap_time + disp_time + gray_time + sobel_time);
     total_ipc += float(sobel_ic/float(cap_time + disp_time + gray_time + sobel_time));
+    cout << "th 0 frame # " << i << endl;
     i++;
 
     // Press q to exit

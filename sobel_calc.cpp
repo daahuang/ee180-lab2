@@ -8,7 +8,7 @@ using namespace cv;
  * Output: None directly. Modifies a ref parameter img_gray_out
  * Desc: This module converts the image to grayscale
 ********************************************/
-void grayScale(Mat& img, Mat& img_gray_out)
+void grayScale(Mat& img, Mat& img_gray_out, int thread )
 {
   // Convert to grayscale
 
@@ -20,9 +20,20 @@ void grayScale(Mat& img, Mat& img_gray_out)
   uchar* img_ptr = img.data;
   uchar* img_gray_out_ptr = img_gray_out.data;
 
-
+  int row_st;
+  int row_end;
+  if (thread == -1) {
+    row_st = 0;
+    row_end = rows;
+  }else if (thread == 0) {
+    row_st = 0;
+    row_end = rows/2;
+  }else if (thread == 1) {
+    row_st = rows/2;
+    row_end = rows;
+  }
   //double color;
-  for (int i=0; i<rows; i++) {
+  for (int i=row_st; i<row_end; i++) {
     //int row_offset = STEP0 * i;
     //int out_row_offset = IMG_WIDTH*i;
     for (int j=0; j<cols; j++) {
@@ -58,7 +69,7 @@ void grayScale(Mat& img, Mat& img_gray_out)
  *  to finish the Sobel calculation
  ********************************************/
 
-void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
+void sobelCalc(Mat& img_gray, Mat& img_sobel_out, int thread)
 {
   //Mat img_outx = img_gray.clone();
   //Mat img_outy = img_gray.clone();
@@ -79,8 +90,20 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
 
   uchar* out_ptr = img_sobel_out.data;
 
+  int row_st;
+  int row_end;
+  if (thread == -1) {
+    row_st = 1;
+    row_end = rows;
+  }else if (thread == 0) {
+    row_st = 1;
+    row_end = rows/2;
+  }else if (thread == 1) {
+    row_st = rows/2;
+    row_end = rows;
+  }
   // Calculate the x convolution
-  for (int i=1; i<rows; i++) {
+  for (int i=row_st; i<row_end; i++) {
     for (int j=1; j<cols; j++) {
       sobel = abs(img_ptr[IMG_WIDTH*(i-1) + (j-1)] -
 		  img_ptr[IMG_WIDTH*(i+1) + (j-1)] +
@@ -95,7 +118,7 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
   }
 
   // Calc the y convolution
-  for (int i=1; i<rows; i++) {
+  for (int i=row_st; i<row_end; i++) {
     for (int j=1; j<cols; j++) {
      sobel = abs(img_ptr[IMG_WIDTH*(i-1) + (j-1)] -
 		   img_ptr[IMG_WIDTH*(i-1) + (j+1)] +
@@ -111,7 +134,7 @@ void sobelCalc(Mat& img_gray, Mat& img_sobel_out)
   }
 
   // Combine the two convolutions into the output image
-  for (int i=1; i<rows; i++) {
+  for (int i=row_st; i<row_end; i++) {
     for (int j=1; j<cols; j++) {
       sobel = outx_ptr[IMG_WIDTH*(i) + j] +
 	outy_ptr[IMG_WIDTH*(i) + j];

@@ -25,6 +25,9 @@ using namespace std;
 
 //This mutex will be used to allow threads to contest for thread 0 status
 extern pthread_barrier_t endSobel;
+extern pthread_barrier_t endSobelCalc;
+extern pthread_barrier_t endImgLoad;
+extern pthread_barrier_t endGray;
 extern pthread_mutex_t thread0;
 extern pthread_t thread0_id;
 
@@ -39,8 +42,8 @@ struct opts {
 
 extern struct opts opts;
 
-void sobelCalc(Mat& img_gray, Mat& img_sobel_out);
-void grayScale(Mat& img, Mat& img_gray_out);
+void sobelCalc(Mat& img_gray, Mat& img_sobel_out, int thread = -1);
+void grayScale(Mat& img, Mat& img_gray_out, int thread = -1);
 
 void runSobelST();
 void *runSobelMT(void *ptr);
